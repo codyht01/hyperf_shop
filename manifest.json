@@ -1,6 +1,6 @@
 {
     "name" : "hyperf_web",
-    "appid" : "",
+    "appid" : "__UNI__76B3F7C",
     "description" : "",
     "versionName" : "1.0.0",
     "versionCode" : "100",
@@ -56,9 +56,10 @@
     "mp-weixin" : {
         /* 小程序特有相关 */
         "usingComponents" : true,
-        "appid" : "",
+        "appid" : "wx9aeaf52d9d7424cb",
         "setting" : {
-            "urlCheck" : true
+            "urlCheck" : true,
+            "minified" : true
         }
     },
     "vueVersion" : "2"

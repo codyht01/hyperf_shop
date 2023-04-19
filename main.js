@@ -39,7 +39,152 @@ const prePage = ()=>{
 	// #endif
 	return prePage.$vm;
 }
+const baseurl = "http://192.168.0.88:9501/member/"
+const request = (url, data = {}, methods = 'post', header = {}, is_loading = true,loading_msg = '加载中...') => {
+	if (Boolean(url) === false) {
+		return;
+	}
+	//查询本地缓存
+	let userinfo = uni.getStorageSync('userInfo') || "";
+	let that = this;
+	if (is_loading) {
+		uni.showLoading({
+			title: loading_msg,
+			mask: true
+		});
+	}
+	header['Access-Token'] = userinfo.token || ""
+	return new Promise((resolve, reject) => {
+		uni.request({
+			method: methods,
+			url: baseurl + url,
+			data: data,
+			header: header,
+			dataType: 'json'
+		}).then((response) => {
+			uni.hideLoading();
+			let [error, res] = response;
+			switch (res.statusCode) {
+				case 426:
+					return uni.reLaunch({
+						url: '/pages/error/error?msg=网络连接失败&type=no_network'
+					})
+					break;
+				case 403:
+					return uni.reLaunch({
+						url: '/pages/error/error?msg=网络连接失败&type=403'
+					})
+					break;
+				case 404:
+					return uni.reLaunch({
+						url: '/pages/error/error?msg=服务器异常&type=404'
+					})
+					break;
+				case 500:
+					return uni.reLaunch({
+						url: '/pages/error/error?msg=网络连接失败&type=500'
+					})
+					break;
+				case 1000:
+					return uni.reLaunch({
+						url: '/pages/error/error?msg=商品已下架&type=1000'
+					})
+					break;
+			}
+			switch (res.data.code) {
+				case 102:
+					return uni.$u.toast(res.data.msg)
+					break;
+				case 909:
+					uni.showModal({
+						title: '请先登录',
+						showCancel: true,
+						success(re) {
+							if (re.confirm) {
+								uni.switchTab({
+									url: '/pages/mine/mine'
+								})
+							}
+						}
+					})
+					break;
+				case 1000:
+					uni.showModal({
+						title: '请先绑定信息',
+						showCancel: true,
+						success(re) {
+							if (re.confirm) {
+								uni.switchTab({
+									url: '/pages/avatar/avatar'
+								})
+							}
+						}
+					})
+					break;
 
+			}
+			resolve(res.data);
+		}).catch(error => {
+			let [err, res] = error;
+			console.log("err=", err)
+			reject(err)
+		})
+	});
+}
+Vue.prototype.http = request;
+//获取是否登录
+const initConfig = (config = {}, is_login = true) => {
+	let that = this;
+	return new Promise((resolve, reject) => {
+		if (is_login) {
+			let getInitConfig = ""
+			if (Object.keys(config).length > 0 && config.type === 99) {
+				getInitConfig = ""
+			} else {
+				getInitConfig = uni.getStorageSync("userInfo")
+			}
+			if (!getInitConfig) {
+				// #ifdef MP-WEIXIN
+				uni.getProvider({
+					service: 'oauth',
+					success: function(res) {
+						if (~res.provider.indexOf('weixin')) {
+							uni.login({
+								provider: 'weixin',
+								scopes: 'auth_base',
+								onlyAuthorize: true,
+								success: function(loginRes) {
+									request('login/check', {
+										...loginRes,
+										type: 'wx'
+									}).then(res => {
+										if (res.code === 101) {
+											//记录缓存
+											store.commit('login', res.data)
+											resolve(res.data)
+										}
+									})
+								}
+							});
+						}
+					}
+				});
+				// #endif
+				// #ifdef APP-PLUS
+				uni.reLaunch({
+					url:'/pages/bindLogin/bindLogin'
+				})
+				// #endif
+
+			} else {
+				resolve(getInitConfig)
+			}
+		}else{
+			resolve([])
+		}
+	})
+}
+Vue.prototype.initConfig = initConfig
 
 Vue.config.productionTip = false
 Vue.prototype.$fire = new Vue();
