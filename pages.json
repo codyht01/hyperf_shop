@@ -10,31 +10,31 @@
 				// #endif 
 				"app-plus": {
 					"titleNView": {
-						"type": "transparent",
-						"searchInput": {
-							"backgroundColor": "rgba(231, 231, 231,.7)",
-							"borderRadius": "16px",
-							"placeholder": "请输入地址 如：大钟寺",
-							"disabled": true,
-							"placeholderColor": "#606266"
-						},
-						"buttons": [{
-								"fontSrc": "/static/yticon.ttf",
-								"text": "\ue60d",
-								"fontSize": "26",
-								"color": "#303133",
-								"float": "left",
-								"background": "rgba(0,0,0,0)"
-							},
-							{
-								"fontSrc": "/static/yticon.ttf",
-								"text": "\ue744",
-								"fontSize": "27",
-								"color": "#303133",
-								"background": "rgba(0,0,0,0)",
-								"redDot": true
-							}
-						]
+						"type": "transparent"
+						// "searchInput": {
+						// 	"backgroundColor": "rgba(231, 231, 231,.7)",
+						// 	"borderRadius": "16px",
+						// 	"placeholder": "请输入地址 如：大钟寺",
+						// 	"disabled": true,
+						// 	"placeholderColor": "#606266"
+						// },
+						// "buttons": [{
+						// 		"fontSrc": "/static/yticon.ttf",
+						// 		"text": "\ue60d",
+						// 		"fontSize": "26",
+						// 		"color": "#303133",
+						// 		"float": "left",
+						// 		"background": "rgba(0,0,0,0)"
+						// 	},
+						// 	{
+						// 		"fontSrc": "/static/yticon.ttf",
+						// 		"text": "\ue744",
+						// 		"fontSize": "27",
+						// 		"color": "#303133",
+						// 		"background": "rgba(0,0,0,0)",
+						// 		"redDot": true
+						// 	}
+						// ]
 					}
 				}
 			}
@@ -183,6 +183,12 @@
 		"navigationBarTitleText": "uni-app",
 		"navigationBarBackgroundColor": "#FFFFFF",
 		"backgroundColor": "#f8f8f8"
+	},
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			"^uni-(.*)": "@/components/uni-$1.vue"
+		}
 	},
 	"tabBar": {
 		"color": "#C0C4CC",
