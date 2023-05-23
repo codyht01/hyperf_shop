@@ -69,7 +69,7 @@
 						</view>
 					</view>
 					 
-					<uni-load-more :status="tabItem.loadingType"></uni-load-more>
+					<!-- <uni-load-more :status="tabItem.loadingType"></uni-load-more> -->
 					
 				</scroll-view>
 			</swiper-item>

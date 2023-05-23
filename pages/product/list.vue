@@ -32,7 +32,7 @@
 				</view>
 			</view>
 		</view>
-		<uni-load-more :status="loadingType"></uni-load-more>
+		<!-- <uni-load-more :status="loadingType"></uni-load-more> -->
 		
 		<view class="cate-mask" :class="cateMaskState===0 ? 'none' : cateMaskState===1 ? 'show' : ''" @click="toggleCateMask">
 			<view class="cate-content" @click.stop.prevent="stopPrevent" @touchmove.stop.prevent="stopPrevent">
