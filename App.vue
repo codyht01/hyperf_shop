@@ -71,6 +71,7 @@
 </script>
 
 <style lang='scss'>
+	@import "@/uni_modules/uview-ui/index.scss";
 	/*
 		全局公共样式和字体图标
 	*/
