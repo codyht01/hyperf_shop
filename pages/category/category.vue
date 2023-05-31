@@ -43,12 +43,12 @@
 					if(res.code){
 						res.data.forEach(item=>{
 							if(item.children){
+								this.flist.push(item)  //一级
 								item.children.forEach(value=>{
 									if(value.children){
 										if(this.currentId == 0){
 											this.currentId = item.id
 										}
-										this.flist.push(item)  //一级
 										this.slist.push(value)  //二级
 										value.children.forEach(vv=>{
 											this.tlist.push(vv)  //三级
@@ -59,17 +59,6 @@
 						})
 					}
 				})
-				//let list = await this.$api.json('cateList');
-				// list.forEach(item=>{
-				// 	if(!item.pid){
-				// 		this.flist.push(item);  //pid为父级id, 没有pid或者pid=0是一级分类
-				// 	}else if(!item.picture){
-				// 		this.slist.push(item); //没有图的是2级分类
-				// 	}else{
-				// 		this.tlist.push(item); //3级分类
-				// 	}
-				// }) 
-				console.log(this.flist)
 			},
 			//一级分类点击
 			tabtap(item){
