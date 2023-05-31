@@ -14,21 +14,27 @@
 					<text :class="{active: priceOrder === 2 && filterIndex === 2}" class="yticon icon-shang xia"></text>
 				</view>
 			</view>
-			<text class="cate-item yticon icon-fenlei1" @click="toggleCateMask('show')"></text>
+			<text class="cate-item yticon icon-fenlei1" @click="toggleCateMask('show')" v-if="cateId != 0"></text>
 		</view>
-		<view class="goods-list">
+		<view class="goods-list" v-if="goodsList.length > 0">
 			<view v-for="(item, index) in goodsList" :key="index" class="goods-item" @click="navToDetailPage(item)">
 				<view class="image-wrapper">
-					<image :src="item.image" mode="aspectFill"></image>
+					<image :src="item.url" mode="aspectFill"></image>
 				</view>
 				<text class="title clamp">{{item.title}}</text>
 				<view class="price-box">
 					<text class="price">{{item.price}}</text>
-					<text>已售 {{item.sales}}</text>
+					<text>已售 {{item.number}}</text>
 				</view>
 			</view>
 		</view>
-
+		<view class="empty" v-else>
+			<u-empty mode="data" :icon="'/static/empty.png'"></u-empty>
+		</view>
+		<view class="nomore"  v-if="goodsList.length >= 10">
+			<u-loadmore :status="status" :loading-text="loadingText" :loadmore-text="loadmoreText"
+				:nomore-text="nomoreText" />
+		</view>
 		<view class="cate-mask" :class="cateMaskState===0 ? 'none' : cateMaskState===1 ? 'show' : ''"
 			@click="toggleCateMask">
 			<view class="cate-content" @click.stop.prevent="stopPrevent" @touchmove.stop.prevent="stopPrevent">
@@ -61,7 +67,17 @@
 				cateId: 0, //已选三级分类id
 				priceOrder: 0, //1 价格从低到高 2价格从高到低
 				cateList: [],
-				goodsList: []
+				goodsList: [],
+				whereData: {
+					limit: 10,
+					page: 1,
+					order_type: '',
+					order_value: ''
+				},
+				status: 'loadmore',
+				loadingText: '努力加载中',
+				loadmoreText: '轻轻上拉',
+				nomoreText: '实在没有了'
 			};
 		},
 
@@ -72,6 +88,7 @@
 			// fid sid tid
 			this.cateId = options.tid;
 			this.loadCateList(options.sid, options.tid);
+			this.goodsList = []
 			this.loadData();
 		},
 		onPageScroll(e) {
@@ -88,7 +105,12 @@
 		},
 		//加载更多
 		onReachBottom() {
-			this.loadData();
+			if (this.status != 'nomore') {
+				this.status = 'loading'
+				this.whereData.page++
+				this.loadData('add');
+			}
+
 		},
 		methods: {
 			/**
@@ -98,62 +120,88 @@
 			 */
 			async loadCateList(sid, tid) {
 				let that = this
-				this.http("category/getOneToAll/"+parseInt(sid)).then(res => {
+				this.http("category/getOneToAll/" + parseInt(sid)).then(res => {
 					if (res.code) {
 						that.cateList = res.data
-						
 					}
 				})
 			},
 			//加载商品 ，带下拉刷新和上滑加载
-			async loadData(type = 'add', loading) {
-				//没有更多直接返回
-				if (type === 'add') {
-					if (this.loadingType === 'nomore') {
-						return;
-					}
-					this.loadingType = 'loading';
-				} else {
-					this.loadingType = 'more'
-				}
+			async loadData(type = '', loading) {
+				console.log(type)
+				let that = this
+				if (this.status != 'nomore') {
+					this.status = 'loading'
+					that.http('goods/index', {
+						...this.whereData,
+						cate_id: parseInt(this.cateId)
+					}).then(res => {
+						uni.hideLoading()
+						if (res.code) {
+							if (type == '') {
+								this.goodsList = res.data.data
+							} else if (type == 'add') {
+								res.data.data.forEach(item => {
+									this.goodsList.push(item)
+								})
 
-				let goodsList = await this.$api.json('goodsList');
-				if (type === 'refresh') {
-					this.goodsList = [];
-				}
-				//筛选，测试数据直接前端筛选了
-				if (this.filterIndex === 1) {
-					goodsList.sort((a, b) => b.sales - a.sales)
-				}
-				if (this.filterIndex === 2) {
-					goodsList.sort((a, b) => {
-						if (this.priceOrder == 1) {
-							return a.price - b.price;
+							} else if (type === 'refresh') {
+								this.goodsList = res.data.data
+							}
+							if (res.data.current_page >= res.data.last_page) {
+								this.status = "nomore"
+							} else {
+								this.status = "loadmore"
+							}
 						}
-						return b.price - a.price;
 					})
 				}
 
-				this.goodsList = this.goodsList.concat(goodsList);
+				// if (type === 'refresh') {
+				// 	this.goodsList = [];
+				// }
+				// //筛选，测试数据直接前端筛选了
+				// if (this.filterIndex === 1) {
+				// 	goodsList.sort((a, b) => b.sales - a.sales)
+				// }
+				// if (this.filterIndex === 2) {
+				// 	goodsList.sort((a, b) => {
+				// 		if (this.priceOrder == 1) {
+				// 			return a.price - b.price;
+				// 		}
+				// 		return b.price - a.price;
+				// 	})
+				// }
+				// this.goodsList = this.goodsList.concat(goodsList);
 
-				//判断是否还有下一页，有是more  没有是nomore(测试数据判断大于20就没有了)
-				this.loadingType = this.goodsList.length > 20 ? 'nomore' : 'more';
-				if (type === 'refresh') {
-					if (loading == 1) {
-						uni.hideLoading()
-					} else {
-						uni.stopPullDownRefresh();
-					}
-				}
+				// //判断是否还有下一页，有是more  没有是nomore(测试数据判断大于20就没有了)
+				// this.loadingType = this.goodsList.length > 20 ? 'nomore' : 'more';
+				// if (type === 'refresh') {
+				// 	if (loading == 1) {
+				// 		uni.hideLoading()
+				// 	} else {
+				// 		uni.stopPullDownRefresh();
+				// 	}
+				// }
 			},
 			//筛选点击
 			tabClick(index) {
+				console.log(this.filterIndex,index)
+				this.status = 'loadmore'
 				if (this.filterIndex === index && index !== 2) {
 					return;
 				}
 				this.filterIndex = index;
 				if (index === 2) {
 					this.priceOrder = this.priceOrder === 1 ? 2 : 1;
+					this.whereData.order_type = 'price'
+					if (this.priceOrder == 1) {
+						this.whereData.order_value = 'asc'
+					} else if (this.priceOrder == 2) {
+						this.whereData.order_value = 'desc'
+					} else {
+						this.whereData.order_value = ''
+					}
 				} else {
 					this.priceOrder = 0;
 				}
@@ -161,10 +209,13 @@
 					duration: 300,
 					scrollTop: 0
 				})
-				this.loadData('refresh', 1);
-				uni.showLoading({
-					title: '正在加载'
-				})
+				this.goodsList = [];
+				if (index == 0) {
+					this.whereData.order_type = ''
+				} else if (index == 1) {
+					this.whereData.order_type = 'number'
+				}
+				this.loadData('', 1);
 			},
 			//显示分类面板
 			toggleCateMask(type) {
@@ -183,6 +234,8 @@
 					duration: 300,
 					scrollTop: 0
 				})
+				this.goodsList = []
+				this.status = 'loading'
 				this.loadData('refresh', 1);
 				uni.showLoading({
 					title: '正在加载'
@@ -191,7 +244,7 @@
 			//详情
 			navToDetailPage(item) {
 				//测试数据没有写id，用title代替
-				let id = item.title;
+				let id = item.sku_id;
 				uni.navigateTo({
 					url: `/pages/product/product?id=${id}`
 				})
@@ -411,5 +464,19 @@
 				font-size: 26upx;
 			}
 		}
+	}
+
+	.nomore {
+		display: flex;
+		padding: 10rpx 0;
+		background-color: #fff;
+	}
+
+	.empty {
+		width: 100%;
+		height: 500rpx;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 </style>

@@ -1,17 +1,21 @@
 <template>
-	<view class="content">
+	<u-skeleton rows="3" title loading v-if="flist.length <= 0"></u-skeleton>
+	<view class="content" v-else>
 		<scroll-view scroll-y class="left-aside">
-			<view v-for="item in flist" :key="item.id" class="f-item b-b" :class="{active: item.id === currentId}" @click="tabtap(item)">
+			<view v-for="item in flist" :key="item.id" class="f-item b-b" :class="{active: item.id === currentId}"
+				@click="tabtap(item)">
 				{{item.title}}
 			</view>
 		</scroll-view>
-		<scroll-view scroll-with-animation scroll-y class="right-aside" @scroll="asideScroll" :scroll-top="tabScrollTop">
+		<scroll-view scroll-with-animation scroll-y class="right-aside" @scroll="asideScroll"
+			:scroll-top="tabScrollTop">
 			<view v-for="item in slist" :key="item.id" class="s-list" :id="'main-'+item.id">
 				<text class="s-item">{{item.title}}</text>
 				<view class="t-list">
-					<view @click="navToList(item.id, titem.id)" v-if="titem.parent_id === item.id" class="t-item" v-for="titem in tlist" :key="titem.id">
-						<!-- <image :src="titem.logo"></image> -->
-						<u--image :showLoading="true" :src="titem.logo" width="140rpx" height="140rpx" :lazy-load="true" shape="circle"></u--image>
+					<view @click="navToList(item.id, titem.id)" v-if="titem.parent_id === item.id" class="t-item"
+						v-for="titem in tlist" :key="titem.id">
+						<u--image :showLoading="true" :src="titem.logo" width="140rpx" height="140rpx" :lazy-load="true"
+							shape="circle"></u--image>
 						<text>{{titem.title}}</text>
 					</view>
 				</view>
@@ -30,28 +34,29 @@
 				flist: [],
 				slist: [],
 				tlist: [],
-				listData:[]
+				listData: [],
+				pageloading: true
 			}
 		},
-		onLoad(){
+		onLoad() {
 			this.loadData();
 		},
 		methods: {
-			async loadData(){
+			async loadData() {
 				let that = this
-				that.http('category/index').then(res=>{
-					if(res.code){
-						res.data.forEach(item=>{
-							if(item.children){
-								this.flist.push(item)  //一级
-								item.children.forEach(value=>{
-									if(value.children){
-										if(this.currentId == 0){
+				that.http('category/index').then(res => {
+					if (res.code) {
+						res.data.forEach(item => {
+							if (item.children) {
+								this.flist.push(item) //一级
+								item.children.forEach(value => {
+									if (value.children) {
+										if (this.currentId == 0) {
 											this.currentId = item.id
 										}
-										this.slist.push(value)  //二级
-										value.children.forEach(vv=>{
-											this.tlist.push(vv)  //三级
+										this.slist.push(value) //二级
+										value.children.forEach(vv => {
+											this.tlist.push(vv) //三级
 										})
 									}
 								})
@@ -61,29 +66,29 @@
 				})
 			},
 			//一级分类点击
-			tabtap(item){
-				if(!this.sizeCalcState){
+			tabtap(item) {
+				if (!this.sizeCalcState) {
 					this.calcSize();
 				}
 				this.currentId = item.id;
-				let index = this.slist.findIndex(sitem=>sitem.parent_id === item.id);
+				let index = this.slist.findIndex(sitem => sitem.parent_id === item.id);
 				this.tabScrollTop = this.slist[index].top;
 			},
 			//右侧栏滚动
-			asideScroll(e){
-				if(!this.sizeCalcState){
+			asideScroll(e) {
+				if (!this.sizeCalcState) {
 					this.calcSize();
 				}
 				let scrollTop = e.detail.scrollTop;
-				let tabs = this.slist.filter(item=>item.top <= scrollTop).reverse();
-				if(tabs.length > 0){
+				let tabs = this.slist.filter(item => item.top <= scrollTop).reverse();
+				if (tabs.length > 0) {
 					this.currentId = tabs[0].parent_id;
 				}
 			},
 			//计算右侧栏每个tab的高度等信息
-			calcSize(){
+			calcSize() {
 				let h = 0;
-				this.slist.forEach(item=>{
+				this.slist.forEach(item => {
 					let view = uni.createSelectorQuery().select("#main-" + item.id);
 					view.fields({
 						size: true
@@ -95,8 +100,8 @@
 				})
 				this.sizeCalcState = true;
 			},
-			navToList(sid, tid){
-				console.log(this.currentId,sid,tid)
+			navToList(sid, tid) {
+				console.log(this.currentId, sid, tid)
 				uni.navigateTo({
 					url: `/pages/product/list?fid=${this.currentId}&sid=${sid}&tid=${tid}`
 				})
@@ -115,12 +120,14 @@
 	.content {
 		display: flex;
 	}
+
 	.left-aside {
 		flex-shrink: 0;
 		width: 200upx;
 		height: 100%;
 		background-color: #fff;
 	}
+
 	.f-item {
 		display: flex;
 		align-items: center;
@@ -130,10 +137,12 @@
 		font-size: 28upx;
 		color: $font-color-base;
 		position: relative;
-		&.active{
+
+		&.active {
 			color: $base-color;
 			background: #f8f8f8;
-			&:before{
+
+			&:before {
 				content: '';
 				position: absolute;
 				left: 0;
@@ -148,12 +157,13 @@
 		}
 	}
 
-	.right-aside{
+	.right-aside {
 		flex: 1;
 		overflow: hidden;
 		padding-left: 20upx;
 	}
-	.s-item{
+
+	.s-item {
 		display: flex;
 		align-items: center;
 		height: 70upx;
@@ -161,19 +171,22 @@
 		font-size: 28upx;
 		color: $font-color-dark;
 	}
-	.t-list{
+
+	.t-list {
 		display: flex;
 		flex-wrap: wrap;
 		width: 100%;
 		background: #fff;
 		padding-top: 12upx;
-		&:after{
+
+		&:after {
 			content: '';
 			flex: 99;
 			height: 0;
 		}
 	}
-	.t-item{
+
+	.t-item {
 		flex-shrink: 0;
 		display: flex;
 		justify-content: center;
@@ -183,8 +196,8 @@
 		font-size: 26upx;
 		color: #666;
 		padding-bottom: 20upx;
-		
-		image{
+
+		image {
 			width: 140upx;
 			height: 140upx;
 		}
