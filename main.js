@@ -53,7 +53,7 @@ const request = (url, data = {}, methods = 'post', header = {}, is_loading = tru
 			mask: true
 		});
 	}
-	header['Access-Token'] = userinfo.token || ""
+	header['Authorization'] = "Bearer "+userinfo.token || ""
 	return new Promise((resolve, reject) => {
 		uni.request({
 			method: methods,
@@ -92,23 +92,30 @@ const request = (url, data = {}, methods = 'post', header = {}, is_loading = tru
 					break;
 			}
 			switch (res.data.code) {
-				case 102:
+				case 0:
 					return uni.$u.toast(res.data.msg)
 					break;
-				case 909:
+				case 113:
 					uni.showModal({
 						title: '请先登录',
 						showCancel: true,
 						success(re) {
 							if (re.confirm) {
+								// #ifdef MP-WEIXIN
 								uni.switchTab({
 									url: '/pages/mine/mine'
 								})
+								// #endif
+								// #ifdef H5
+								uni.switchTab({
+									url:'/pages/public/login'
+								})
+								// #endif
 							}
 						}
 					})
 					break;
-				case 1000:
+				case 115:
 					uni.showModal({
 						title: '请先绑定信息',
 						showCancel: true,
@@ -121,7 +128,6 @@ const request = (url, data = {}, methods = 'post', header = {}, is_loading = tru
 						}
 					})
 					break;
-
 			}
 			resolve(res.data);
 		}).catch(error => {
@@ -142,6 +148,7 @@ const initConfig = (config = {}, is_login = true) => {
 				getInitConfig = ""
 			} else {
 				getInitConfig = uni.getStorageSync("userInfo")
+				store.commit('login', getInitConfig)
 			}
 			if (!getInitConfig) {
 				// #ifdef MP-WEIXIN
@@ -158,7 +165,7 @@ const initConfig = (config = {}, is_login = true) => {
 										...loginRes,
 										type: 'wx'
 									}).then(res => {
-										if (res.code === 101) {
+										if (res.code) {
 											//记录缓存
 											store.commit('login', res.data)
 											resolve(res.data)

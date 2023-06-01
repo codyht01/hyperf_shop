@@ -97,7 +97,10 @@
 			};
 		},
 		onLoad(){
-			this.loadData();
+			this.initConfig().then(()=>{
+				this.loadData();
+			})
+			
 		},
 		watch:{
 			//显示空白页

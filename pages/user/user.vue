@@ -114,6 +114,7 @@
 			}
 		},
 		onLoad(){
+			this.initConfig()
 		},
 		// #ifndef MP
 		onNavigationBarButtonTap(e) {

@@ -221,5 +221,15 @@
 				"text": "我的"
 			}
 		]
+	},
+	"condition": {
+		"current": 0,
+		"list": [
+			{
+				"name": "详情",
+				"path": "pages/product/product",
+				"query": "id=75"
+			}
+		]
 	}
 }

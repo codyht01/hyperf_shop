@@ -253,7 +253,7 @@
 		},
 
 		onLoad() {
-			this.initConfig()
+			//this.initConfig()
 			this.loadData();
 		},
 		methods: {
