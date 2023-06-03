@@ -253,7 +253,11 @@
 		},
 
 		onLoad() {
-			//this.initConfig()
+			// #ifdef MP-WEIXIN
+			this.initConfig({
+				type:99
+			})
+			// #endif
 			this.loadData();
 		},
 		methods: {

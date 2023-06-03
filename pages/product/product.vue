@@ -22,7 +22,7 @@
 			<view class="bot-row">
 				<text>销量: {{ listData.number }}</text>
 				<text>库存: {{ listData.stock }}</text>
-				<text>浏览量: 768</text>
+				<text>浏览量: 99+</text>
 			</view>
 		</view>
 
@@ -278,7 +278,7 @@ export default {
 		},
 		buy() {
 			uni.navigateTo({
-				url: `/pages/order/createOrder?id=`+this.listData.sku_id
+				url: `/pages/order/createOrder?type=order&id=`+this.listData.sku_id
 			});
 		},
 		stopPrevent() {}
