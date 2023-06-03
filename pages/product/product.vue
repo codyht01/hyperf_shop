@@ -278,7 +278,7 @@ export default {
 		},
 		buy() {
 			uni.navigateTo({
-				url: `/pages/order/createOrder`
+				url: `/pages/order/createOrder?id=`+this.listData.sku_id
 			});
 		},
 		stopPrevent() {}

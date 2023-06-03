@@ -136,7 +136,8 @@
 		}, {
 			"path": "pages/address/address",
 			"style": {
-				"navigationBarTitleText": "收货地址"
+				"navigationBarTitleText": "收货地址",
+				"enablePullDownRefresh": true
 			}
 		}, {
 			"path": "pages/address/addressManage",
@@ -229,6 +230,11 @@
 				"name": "详情",
 				"path": "pages/product/product",
 				"query": "id=75"
+			},
+			{
+				"name": "地址",
+				"path": "pages/address/address",
+				"query": ""
 			}
 		]
 	}

@@ -15,7 +15,7 @@
 					<view @click="navToList(item.id, titem.id)" v-if="titem.parent_id === item.id" class="t-item"
 						v-for="titem in tlist" :key="titem.id">
 						<u--image :showLoading="true" :src="titem.logo" width="140rpx" height="140rpx" :lazy-load="true"
-							shape="circle"></u--image>
+							shape="circle" :showMenuByLongpress="false"></u--image>
 						<text>{{titem.title}}</text>
 					</view>
 				</view>
