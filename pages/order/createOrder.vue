@@ -1,6 +1,12 @@
 <template>
 	<u-skeleton rows="20" title loading v-if="listData.length <= 0"></u-skeleton>
 	<view v-else>
+		<view class="yt-list">
+			<view class="yt-list-cell b-b">
+				<text class="cell-tit clamp">配送方式</text>
+				<text class="cell-tip">￥{{pay_price}}</text>
+			</view>
+		</view>
 		<!-- 地址 -->
 		<navigator url="/pages/address/address?source=1" class="address-section">
 			<view class="order-content" v-if="listData.address.length > 0">
@@ -175,8 +181,8 @@
 				}).then(res => {
 					if (res.code) {
 						this.listData = res.data
-						res.data.goods.forEach(item=>{
-							item.list.forEach(value=>{
+						res.data.goods.forEach(item => {
+							item.list.forEach(value => {
 								console.log(value)
 								let price = parseFloat(value.price) * value.number
 								this.pay_price += price
